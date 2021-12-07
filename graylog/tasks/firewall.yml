@@ -1,0 +1,22 @@
+---
+# https://docs.graylog.org/en/4.0/pages/secure/securing.html
+- name: Open Graylog TCP Ports
+  become: yes
+  ufw:
+    rule: allow
+    proto: tcp
+    port: "{{ item }}"
+  loop:
+    - 1514 #TCP Syslog
+    - 4514 #TCP TLS Syslog
+    - 2055 #Netflow
+    - 5044 #Sidecar/Beats
+
+- name: Open Graylog UDP Ports
+  become: yes
+  ufw:
+    rule: allow
+    proto: udp
+    port: "{{ item }}"
+  loop:
+    - 1514

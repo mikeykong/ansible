@@ -1,0 +1,23 @@
+---
+- name: Create Graylog Archive NFS mount
+  become: yes
+  file:
+    path: "{{ graylog_archive_nfs_mount_path }}"
+    state: directory
+
+- name: Mount Graylog Archive
+  become: yes
+  mount:
+    src: "{{ graylog_archive_nfs_host }}:{{ graylog_archive_nfs_export_path }}"
+    path: "{{ graylog_archive_nfs_mount_path }}"
+    opts: rw,soft
+    state: mounted
+    fstype: nfs
+
+- name: Create Graylog Archive Path
+  become: yes
+  file:
+    path: "{{ graylog_archive_path }}"
+    state: directory
+    owner: graylog
+    group: graylog

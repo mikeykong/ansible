@@ -1,0 +1,50 @@
+---
+- name: Sets up Graylog
+  hosts: graylog
+  vars:
+    nginx_reverse_proxy_headers:
+      - Host $http_host
+      - X-Forwarded-Host $host
+      - X-Forwarded-Server $host
+      - X-Forwarded-For $proxy_add_x_forwarded_for
+      - X-Graylog-Server-URL https://$server_name/
+  roles:
+    - nginx
+  tasks:
+
+    - name: Installs pre-requisite packages
+      apt:
+        name:
+          - apt-transport-https
+          - openjdk-8-jre-headless
+          - uuid-runtime
+          - pwgen
+          - nfs-common
+        state: present
+        update_cache: yes
+      become: yes
+
+    - include_tasks: tasks/firewall.yml
+    - include_tasks: tasks/mongodb.yml
+    - include_tasks: tasks/elastisearch.yml
+    - include_tasks: tasks/graylog.yml
+    - include_tasks: tasks/graylog-archive.yml
+
+  handlers:
+    - name: Restarts MongoDB Service
+      ansible.builtin.systemd:
+        name: mongod
+        state: restarted
+      become: yes
+
+    - name: Restarts Elasticsearch Service
+      ansible.builtin.systemd:
+        name: elasticsearch
+        state: restarted
+      become: yes
+
+    - name: Restarts Graylog-Server Service
+      ansible.builtin.systemd:
+        name: graylog-server
+        state: restarted
+      become: yes

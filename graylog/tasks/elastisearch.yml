@@ -1,0 +1,39 @@
+---
+- name: Installs Elasticsearch apt-key
+  apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+  become: yes
+
+- name: Installs Elasticsearch repo
+  apt_repository:
+    repo: deb https://artifacts.elastic.co/packages/oss-7.x/apt stable main
+    state: present
+    filename: elastic-7.x.list
+    update_cache: yes
+  become: yes
+
+- name: Installs Elasticsearch
+  apt:
+    name: elasticsearch-oss
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Add the Elasticsearch config
+  become: yes
+  template:
+    src: templates/elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+    owner: elasticsearch
+    group: root
+    mode: u=r,g=rw,o=
+  notify: Restarts Elasticsearch Service
+
+- name: Ensures Elasticsearch has started
+  systemd:
+    name: elasticsearch
+    daemon_reload: yes
+    enabled: yes
+    state: started
+  become: yes

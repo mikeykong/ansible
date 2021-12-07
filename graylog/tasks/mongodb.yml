@@ -1,0 +1,30 @@
+---
+- name: Installs MongoDB apt-key
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: 9DA31620334BD75D9DCB49F368818C72E52529D4
+    state: present
+  become: yes
+
+- name: Installs MongoDB repo
+  apt_repository:
+    repo: deb https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse
+    state: present
+    filename: mongodb-org-4.0.list
+    update_cache: yes
+  become: yes
+
+- name: Installs MongoDB
+  apt:
+    name: mongodb-org
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Ensures MongoDB has started
+  systemd:
+    name: mongod
+    daemon_reload: yes
+    enabled: yes
+    state: started
+  become: yes
